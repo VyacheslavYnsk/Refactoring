@@ -39,7 +39,7 @@ public class AuthService : IAuthService
         }
 
 
-        var user = new User
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = request.Email,
@@ -109,7 +109,7 @@ public class AuthService : IAuthService
 
 
 
-    private string GenerateJwtToken(User user)
+    private string GenerateJwtToken(UserModel user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
