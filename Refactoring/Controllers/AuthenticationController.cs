@@ -37,11 +37,17 @@ namespace Refactoring.Controllers
 
                 if (result.Success)
                 {
-                    return Ok(result);
+                    return StatusCode(201, new AuthResponse
+                    {
+                        Success = true,
+                        AccesToken = result.Message,
+                        Message = "Пользователь успешно зарегистрирован"
+                    });
                 }
 
                 return BadRequest(new { success = false, message = result.Message });
             }
+
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера" });
@@ -68,7 +74,15 @@ namespace Refactoring.Controllers
 
                 if (result.Success)
                 {
-                    return Ok(result);
+                    if (result.Success)
+                {
+                    return StatusCode(201, new AuthResponse
+                    {
+                        Success = true,
+                        AccesToken = result.Message,
+                        Message = "Пользователь успешно зарегистрирован"
+                    });
+                }
                 }
 
                 return BadRequest(new { success = false, message = result.Message });
