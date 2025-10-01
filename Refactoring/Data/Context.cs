@@ -8,6 +8,9 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<UserModel> Users { get; set; }
 
+    public DbSet<Hall> Halls { get; set; }
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 
