@@ -45,7 +45,7 @@ namespace Refactoring.Controllers
                     return StatusCode(201, new AuthResponse
                     {
                         Success = true,
-                        AccesToken = result.Message,
+                        AccesToken = result.AccesToken,
                         Message = "Пользователь успешно зарегистрирован"
                     });
                 }
@@ -84,7 +84,7 @@ namespace Refactoring.Controllers
                     return StatusCode(201, new AuthResponse
                     {
                         Success = true,
-                        AccesToken = result.Message,
+                        AccesToken = result.AccesToken,
                         Message = "Пользователь успешно зарегистрирован"
                     });
                 }

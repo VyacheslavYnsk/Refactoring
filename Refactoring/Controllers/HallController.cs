@@ -11,13 +11,17 @@ namespace Refactoring.Controllers
     public class HallsController : ControllerBase
     {
         private readonly IHallService _hallService;
+        private readonly IUserService _userService;
 
-        public HallsController(IHallService hallService)
+
+        public HallsController(IHallService hallService, IUserService userService)
         {
             _hallService = hallService;
+            _userService = userService;
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] HallCreate request)
         {
             try
@@ -32,11 +36,26 @@ namespace Refactoring.Controllers
                     });
                 }
 
+
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
+                }
+
+                var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
+
+                if (userRole != Role.Admin)
+                {
+                    return BadRequest(new { success = false, message = "Пользователь не является админом" });
+                }
+
                 var result = await _hallService.CreateAsync(request);
 
 
                 return StatusCode(201, result);
-                                
+
             }
             catch (InvalidOperationException ex)
             {
@@ -49,27 +68,29 @@ namespace Refactoring.Controllers
         }
 
         [HttpGet]
-    public async Task<IActionResult> GetList(
-        [FromQuery] int page = 0, 
-        [FromQuery] int size = 20)
-    {
-        try
+        public async Task<IActionResult> GetList(
+            [FromQuery] int page = 0,
+            [FromQuery] int size = 20)
         {
-            var result = await _hallService.GetListAsync(page, size);
-            return Ok(new { 
-                success = true, 
-                data = result.Data,
-                pagination = result.Pagination
-            });
+            try
+            {
+                var result = await _hallService.GetListAsync(page, size);
+                return Ok(new
+                {
+                    success = true,
+                    data = result.Data,
+                    pagination = result.Pagination
+                });
+            }
+            catch
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Внутренняя ошибка сервера при получении списка залов"
+                });
+            }
         }
-        catch
-        {
-            return StatusCode(500, new { 
-                success = false, 
-                message = "Внутренняя ошибка сервера при получении списка залов" 
-            });
-        }
-    }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
@@ -90,7 +111,9 @@ namespace Refactoring.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit([FromBody] HallUpdate request,  Guid id)
+        [Authorize]
+
+        public async Task<IActionResult> Edit([FromBody] HallUpdate request, Guid id)
         {
             try
             {
@@ -103,9 +126,22 @@ namespace Refactoring.Controllers
                         errors = ModelState.Values.SelectMany(v => v.Errors)
                     });
                 }
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
+                }
+
+                var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
+
+                if (userRole != Role.Admin)
+                {
+                    return BadRequest(new { success = false, message = "Пользователь не является админом" });
+                }
 
                 var result = await _hallService.EditAsync(request, id);
-                return Ok(new {  data = result });
+                return Ok(new { data = result });
             }
             catch (KeyNotFoundException ex)
             {
@@ -122,39 +158,58 @@ namespace Refactoring.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
+                }
+
+                var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
+
+                if (userRole != Role.Admin)
+                {
+                    return BadRequest(new { success = false, message = "Пользователь не является админом" });
+                }
+
                 var result = await _hallService.DeleteAsync(id);
-                
+
                 if (result)
                 {
-                    return Ok(new { 
-                        success = true, 
-                        message = "Зал успешно удален" 
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Зал успешно удален"
                     });
                 }
                 else
                 {
-                    return StatusCode(500, new { 
-                        success = false, 
-                        message = "Не удалось удалить зал" 
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Не удалось удалить зал"
                     });
                 }
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { 
-                    success = false, 
-                    message = ex.Message 
+                return NotFound(new
+                {
+                    success = false,
+                    message = ex.Message
                 });
             }
-            catch (Exception ex)
+            catch 
             {
-                return StatusCode(500, new { 
-                    success = false, 
-                    message = "Внутренняя ошибка сервера при удалении зала" 
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Внутренняя ошибка сервера при удалении зала"
                 });
             }
         }

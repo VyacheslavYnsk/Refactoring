@@ -56,6 +56,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IHallService, HallService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 
 builder.Services.AddHttpContextAccessor();
 

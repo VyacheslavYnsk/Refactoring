@@ -48,48 +48,62 @@ public class UserService : IUserService
 
 
     public async Task<User?> EditAsync(UserUpdate request, Guid id)
-{
-
-    var user = await _context.Users
-        .FirstOrDefaultAsync(u => u.Id == id);
-
-    if (user == null)
     {
-        return null;
-    }
 
-    if (!string.IsNullOrEmpty(request.Email))
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrEmpty(request.Email))
             user.Email = request.Email;
 
-    if (!string.IsNullOrEmpty(request.FirstName))
+        if (!string.IsNullOrEmpty(request.FirstName))
             user.FirstName = request.FirstName;
 
-    if (!string.IsNullOrEmpty(request.LastName))
+        if (!string.IsNullOrEmpty(request.LastName))
             user.LastName = request.LastName;
 
-    if (request.Age.HasValue)
-        user.Age = request.Age.Value;
+        if (request.Age.HasValue)
+            user.Age = request.Age.Value;
 
-    if (request.Gender.HasValue)
-        user.Gender = request.Gender.Value;
+        if (request.Gender.HasValue)
+            user.Gender = request.Gender.Value;
 
-    user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
 
-    await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
-    var userR = new User
-    {
-        Id = user.Id,
-        Email = user.Email,
-        FirstName = user.FirstName,
-        LastName = user.LastName,
-        CreatedAt = user.CreatedAt,
-        UpdatedAt = user.UpdatedAt,
-        Gender = user.Gender,
-        Role = user.Role
+        var userR = new User
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            Gender = user.Gender,
+            Role = user.Role
         };
 
-    return userR;
+        return userR;
+    }
+    
+
+    public async Task<Role?> GetRoleAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Invalid user id", nameof(id));
+
+        var user = await _context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == id)
+            .FirstOrDefaultAsync();
+        
+        return user.Role;
     }
 }
           
