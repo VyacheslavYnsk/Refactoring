@@ -59,6 +59,7 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFilmService, FilmService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 
