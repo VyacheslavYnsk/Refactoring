@@ -1,4 +1,4 @@
-public class User : Entity
+public class UserModel : Entity
 {
     public required string Email { get; set; }
 

@@ -4,18 +4,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Model.Register;
 
+
+
 namespace Refactoring.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AuthenticationController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ITokenRevocationService _tokenRevocationService;
 
-        public AuthenticationController(IAuthService authService)
+
+        public AuthController(IAuthService authService, ITokenRevocationService tokenRevocationService)
         {
             _authService = authService;
+            _tokenRevocationService = tokenRevocationService;
         }
 
         [HttpPost("register")]
@@ -37,11 +42,17 @@ namespace Refactoring.Controllers
 
                 if (result.Success)
                 {
-                    return Ok(result);
+                    return StatusCode(201, new AuthResponse
+                    {
+                        Success = true,
+                        AccesToken = result.AccesToken,
+                        Message = "Пользователь успешно зарегистрирован"
+                    });
                 }
 
                 return BadRequest(new { success = false, message = result.Message });
             }
+
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера" });
@@ -68,7 +79,15 @@ namespace Refactoring.Controllers
 
                 if (result.Success)
                 {
-                    return Ok(result);
+                    if (result.Success)
+                {
+                    return StatusCode(201, new AuthResponse
+                    {
+                        Success = true,
+                        AccesToken = result.AccesToken,
+                        Message = "Пользователь успешно зарегистрирован"
+                    });
+                }
                 }
 
                 return BadRequest(new { success = false, message = result.Message });
@@ -79,8 +98,38 @@ namespace Refactoring.Controllers
             }
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> LogoutUser()
+        {
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                
+                if (string.IsNullOrEmpty(token))
+                {
+                    return BadRequest(new { success = false, message = "Token is required" });
+                }
+                
+                var result = await _tokenRevocationService.RevokeTokenAsync(token);
+                
+                if (!result)
+                {
+                    return BadRequest(new { success = false, message = "Token has already been revoked" });
+                }
 
+                return Ok(new { success = true, message = "Logout successful" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Internal server error" });
+            }
+        }
 
 
     }
