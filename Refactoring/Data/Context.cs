@@ -10,6 +10,9 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Hall> Halls { get; set; }
 
+    public DbSet<SeatCategory> SeatCategories { get; set; }
+
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

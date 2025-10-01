@@ -57,6 +57,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISeatCategoryService, SeatCategoryService>();
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 
