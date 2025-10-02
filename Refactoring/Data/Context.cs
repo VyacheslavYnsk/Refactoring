@@ -13,6 +13,8 @@ public class ApplicationDbContext : DbContext
     
     public DbSet<Film> Films { get; set; }
 
+    public DbSet<Session> Sessions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 
     {
