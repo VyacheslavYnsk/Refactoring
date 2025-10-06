@@ -55,9 +55,11 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ISeatCategoryService, SeatCategoryService>();
+builder.Services.AddScoped<IFilmService, FilmService>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 
