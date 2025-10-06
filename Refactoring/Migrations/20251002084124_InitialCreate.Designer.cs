@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Refactoring.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251001111356_AddSeatCat")]
-    partial class AddSeatCat
+    [Migration("20251002084124_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace Refactoring.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Hall", b =>
+            modelBuilder.Entity("HallDto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -38,6 +38,9 @@ namespace Refactoring.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rows")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -66,7 +69,7 @@ namespace Refactoring.Migrations
                     b.ToTable("SeatCategories");
                 });
 
-            modelBuilder.Entity("UserModel", b =>
+            modelBuilder.Entity("UserDto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

@@ -22,7 +22,7 @@ namespace Refactoring.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Create([FromBody] SeatCategoryCreate request)
+        public async Task<IActionResult> CreateCategoryAsync([FromBody] SeatCategoryCreate request)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace Refactoring.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetList(
+        public async Task<IActionResult> GetCategoryListAsync(
             [FromQuery] int page = 0,
             [FromQuery] int size = 20)
         {
@@ -93,7 +93,7 @@ namespace Refactoring.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetCategoryById(Guid id)
         {
             try
             {
@@ -113,7 +113,7 @@ namespace Refactoring.Controllers
         [HttpPut("{id}")]
         [Authorize]
 
-        public async Task<IActionResult> Edit([FromBody] SeatCategoryUpdate request, Guid id)
+        public async Task<IActionResult> EditCategoryAsync([FromBody] SeatCategoryUpdate request, Guid id)
         {
             try
             {
@@ -159,7 +159,7 @@ namespace Refactoring.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> DeleteCategoryAsync(Guid id)
         {
             try
             {

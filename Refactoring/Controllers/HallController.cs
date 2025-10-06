@@ -11,13 +11,20 @@ namespace Refactoring.Controllers
     public class HallsController : ControllerBase
     {
         private readonly IHallService _hallService;
+        private readonly ISeatService _seatService;
+
+        private readonly ISeatCategoryService _seatCategoryService;
+
+
         private readonly IUserService _userService;
 
 
-        public HallsController(IHallService hallService, IUserService userService)
+        public HallsController(IHallService hallService, IUserService userService, ISeatService seatService, ISeatCategoryService seatCategoryService)
         {
             _hallService = hallService;
             _userService = userService;
+            _seatService = seatService;
+            _seatCategoryService = seatCategoryService;
         }
 
         [HttpPost]
@@ -204,7 +211,7 @@ namespace Refactoring.Controllers
                     message = ex.Message
                 });
             }
-            catch 
+            catch
             {
                 return StatusCode(500, new
                 {
@@ -213,6 +220,74 @@ namespace Refactoring.Controllers
                 });
             }
         }
+
+        [HttpGet("{id}/plan")]
+        public async Task<IActionResult> GetPlanAsync(Guid id)
+        {
+            try
+            {
+                var seats = await _seatService.GetSeatsByHallIdAsync(id);
+
+                Console.WriteLine(seats.Count + " bvcbcvbcvbvcb c");
+
+                var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);;
+                var rows = await _hallService.GetHallsRowsAsync(id);
+
+                var hallPlan = new HallPlan
+                {
+                    HallId = id,
+                    Seats = seats,
+                    Categories = categories,
+                    Rows = rows,
+                };
+
+                return Ok(new { hallPlan });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера" });
+            }
+
+        }
+    
+    
+        [HttpPut("{id}/plan")]
+        public async Task<IActionResult> EditPlanAsync(Guid id, [FromBody] HallPlanUpdate hallPlanUpdate )
+        {
+            try
+            {
+                var rows = await _hallService.EditRowsCountAsync(hallPlanUpdate.Rows, id);
+
+                var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(hallPlanUpdate.Seats, sc => sc.CategoryId);
+
+                var seats = await _seatService.CreateSeatListAsync(hallPlanUpdate.Seats, id, rows);
+
+            
+                var hallPlan = new HallPlan
+                {
+                    HallId = id,
+                    Seats = seats,
+                    Categories = categories,
+                    Rows = rows,
+                };
+                
+                return Ok(new { hallPlan });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return StatusCode(500, new { success = false, message =ex.Message });
+            }
+        
+        }
     }
+    
 
 }

@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Refactoring.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250930055222_AddHallsTable")]
-    partial class AddHallsTable
+    [Migration("20251006091644_AddSeatsTable")]
+    partial class AddSeatsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace Refactoring.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Hall", b =>
+            modelBuilder.Entity("HallDto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,6 +40,9 @@ namespace Refactoring.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Rows")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -48,7 +51,51 @@ namespace Refactoring.Migrations
                     b.ToTable("Halls");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("SeatCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PriceCents")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SeatCategories");
+                });
+
+            modelBuilder.Entity("SeatDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategotyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Row")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Seats");
+                });
+
+            modelBuilder.Entity("UserDto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

@@ -6,22 +6,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Refactoring.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSeatCat : Migration
+    public partial class AddSeatsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SeatCategories",
+                name: "Seats",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    PriceCents = table.Column<int>(type: "integer", nullable: false)
+                    Row = table.Column<int>(type: "integer", nullable: false),
+                    Number = table.Column<int>(type: "integer", nullable: false),
+                    CategotyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    HallId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SeatCategories", x => x.Id);
+                    table.PrimaryKey("PK_Seats", x => x.Id);
                 });
         }
 
@@ -29,7 +32,7 @@ namespace Refactoring.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SeatCategories");
+                name: "Seats");
         }
     }
 }
