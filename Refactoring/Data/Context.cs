@@ -7,10 +7,14 @@ public class ApplicationDbContext : DbContext
     }
 
 
-    public DbSet<UserModel> Users { get; set; }
+    public DbSet<UserDto> Users { get; set; }
 
-    public DbSet<Hall> Halls { get; set; }
-    
+    public DbSet<HallDto> Halls { get; set; }
+
+    public DbSet<SeatDto> Seats { get; set; }
+
+    public DbSet<SeatCategory> SeatCategories { get; set; }
+
     public DbSet<Film> Films { get; set; }
 
     public DbSet<Session> Sessions { get; set; }
