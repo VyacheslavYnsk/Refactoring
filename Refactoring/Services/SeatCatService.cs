@@ -14,7 +14,7 @@ public class SeatCategoryService : ISeatCategoryService
 
     public async Task<SeatCategory> CreateAsync(SeatCategoryCreate seatCategoryCreate)
     {
-        
+
         var seatCategory = new SeatCategory
         {
             Id = Guid.NewGuid(),
@@ -29,18 +29,18 @@ public class SeatCategoryService : ISeatCategoryService
         return seatCategory;
     }
 
-     public async Task<PaginationResponse<SeatCategory>> GetListAsync(int page, int size)
+    public async Task<PaginationResponse<SeatCategory>> GetListAsync(int page, int size)
     {
         if (page < 0) page = 0;
         if (size < 1) size = 1;
-        if (size > 100) size = 100; 
+        if (size > 100) size = 100;
 
         var query = _context.SeatCategories.OrderBy(h => h.Name);
 
         var total = await query.CountAsync();
 
         var totalPages = (int)Math.Ceiling(total / (double)size);
-        
+
         var skip = page * size;
 
         var data = await query
@@ -83,9 +83,9 @@ public class SeatCategoryService : ISeatCategoryService
             throw new KeyNotFoundException($"Категория с ID {id} не найден");
         }
 
-        if (seatCategoryUpdate.PriceCents != null )
+        if (seatCategoryUpdate.PriceCents != null)
         {
-            
+
 
             seatCategory.PriceCents = seatCategoryUpdate.PriceCents.Value;
         }
@@ -99,19 +99,47 @@ public class SeatCategoryService : ISeatCategoryService
 
         return seatCategory;
     }
-    
-     public async Task<bool> DeleteAsync(Guid id)
+
+    public async Task<bool> DeleteAsync(Guid id)
     {
         var seatCategory = await _context.SeatCategories.FindAsync(id);
-        
+
         if (seatCategory == null)
         {
-            throw new KeyNotFoundException($"Категория с ID {id} не найден");
+            throw new KeyNotFoundException($"Категория с ID {id} не найденa");
         }
 
         _context.SeatCategories.Remove(seatCategory);
         var result = await _context.SaveChangesAsync();
-        
+
         return result > 0;
+    }
+
+
+
+
+    public async Task<List<SeatCategory>> GetCategoriesBySeatIdAsync<T>(List<T> seats, Func<T, Guid> categoryIdSelector)
+    {
+        if (seats == null || !seats.Any())
+        {
+            return new List<SeatCategory>();
+        }
+
+        var categoryIds = seats.Select(categoryIdSelector).Distinct().ToList();
+
+        var categories = await _context.SeatCategories
+            .Where(c => categoryIds.Contains(c.Id))
+            .ToListAsync();
+
+        var foundCategoryIds = categories.Select(c => c.Id).ToList();
+        var missingCategoryIds = categoryIds.Except(foundCategoryIds).ToList();
+
+        if (missingCategoryIds.Any())
+        {
+            throw new KeyNotFoundException(
+                $"Категории с ID {string.Join(", ", missingCategoryIds)} не найдены");
+        }
+
+        return categories;
     }
 }
