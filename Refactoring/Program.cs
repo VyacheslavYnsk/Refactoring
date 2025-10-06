@@ -60,6 +60,8 @@ builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFilmService, FilmService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISeatCategoryService, SeatCategoryService>();
+
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 
