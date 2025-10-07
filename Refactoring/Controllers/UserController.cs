@@ -11,11 +11,11 @@ namespace Refactoring.Controllers
 
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _UserService;
+        private readonly IUserService _userService;
 
-        public UsersController(IUserService UserService)
+        public UsersController(IUserService userService)
         {
-            _UserService = UserService;
+            _userService = userService;
         }
 
         [Authorize]
@@ -31,7 +31,7 @@ namespace Refactoring.Controllers
                     return Unauthorized(new { success = false, message = "Неверный токен" });
                 }
 
-                var result = await _UserService.GetUserByIdAsync(Guid.Parse(userId));
+                var result = await _userService.GetUserByIdAsync(Guid.Parse(userId));
 
                 if (result == null)
                 {
@@ -69,7 +69,7 @@ namespace Refactoring.Controllers
                     });
                 }
 
-                var result = await _UserService.EditAsync(request, Guid.Parse(userId));
+                var result = await _userService.EditAsync(request, Guid.Parse(userId));
 
                 if (result != null)
                 {
@@ -90,7 +90,7 @@ namespace Refactoring.Controllers
         {
             try
             {
-                var result = await _UserService.GetUserByIdAsync(id);
+                var result = await _userService.GetUserByIdAsync(id);
 
                 if (result == null)
                 {

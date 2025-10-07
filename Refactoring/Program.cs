@@ -62,6 +62,7 @@ builder.Services.AddScoped<IFilmService, FilmService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISeatCategoryService, SeatCategoryService>();
 builder.Services.AddScoped<ISeatService, SeatService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();

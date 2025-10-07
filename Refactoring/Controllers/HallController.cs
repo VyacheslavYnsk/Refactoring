@@ -228,9 +228,8 @@ namespace Refactoring.Controllers
             {
                 var seats = await _seatService.GetSeatsByHallIdAsync(id);
 
-                Console.WriteLine(seats.Count + " bvcbcvbcvbvcb c");
 
-                var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);;
+                var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);
                 var rows = await _hallService.GetHallsRowsAsync(id);
 
                 var hallPlan = new HallPlan
@@ -260,6 +259,20 @@ namespace Refactoring.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
+                }
+
+                var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
+
+                if (userRole != Role.Admin)
+                {
+                    return BadRequest(new { success = false, message = "Пользователь не является админом" });
+                }
+
                 var rows = await _hallService.EditRowsCountAsync(hallPlanUpdate.Rows, id);
 
                 var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(hallPlanUpdate.Seats, sc => sc.CategoryId);

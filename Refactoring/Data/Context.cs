@@ -18,6 +18,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Film> Films { get; set; }
 
     public DbSet<Session> Sessions { get; set; }
+    public DbSet<TicketDto> Tickets { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 

@@ -9,10 +9,28 @@ public class SessionsController : ControllerBase
     private readonly ISessionService _sessionService;
     private readonly IUserService _userService;
 
-    public SessionsController(ISessionService sessionService, IUserService userService)
+    private readonly IHallService _hallService;
+
+    private readonly ISeatCategoryService _seatCategoryService;
+
+    private readonly ISeatService _seatService;
+    private readonly ITicketService _ticketService;
+
+
+
+
+
+
+    public SessionsController(ISessionService sessionService, IUserService userService, IHallService hallService, ISeatCategoryService seatCategoryService,
+    ISeatService seatService, ITicketService ticketService)
     {
         _sessionService = sessionService;
         _userService = userService;
+        _hallService = hallService;
+        _seatCategoryService = seatCategoryService;
+        _seatService = seatService;
+        _ticketService = ticketService;
+
     }
 
     [HttpGet]
@@ -36,7 +54,7 @@ public class SessionsController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "Ошибка при получении списка сеансов" });
+            return StatusCode(500, new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
@@ -48,60 +66,99 @@ public class SessionsController : ControllerBase
             var session = await _sessionService.GetByIdAsync(id);
             if (session == null)
             {
-                return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
+                return NotFound(new { success = false, message = $"пїЅпїЅпїЅпїЅпїЅ пїЅ ID {id} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
             }
             return Ok(session);
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "Ошибка при получении сеанса" });
+            return StatusCode(500, new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
-[HttpPost]
-[Authorize]
-public async Task<IActionResult> CreateSession([FromBody] SessionCreate dto)
-{
-    try
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> CreateSession([FromBody] SessionCreate dto)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
-        var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-        if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Недостаточно прав" });
+            var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ" });
 
-        var session = await _sessionService.CreateAsync(dto);
+            var hall = _hallService.GetByIdAsync(dto.HallId);
+            if (hall == null)
+            {
+                return BadRequest(new { success = false, message = "Р—Р°Р»Р° СЃ С‚Р°РєРёРј id РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚" });
+            }
 
-        return CreatedAtAction(nameof(GetSessionById), new { id = session.Id }, session);
-    }
-    catch (InvalidOperationException ex)
-    {
-        return BadRequest(new { success = false, message = ex.Message });
-    }
-    catch (KeyNotFoundException ex)
-    {
-        return NotFound(new { success = false, message = ex.Message });
-    }
-    catch
-    {
-        return StatusCode(500, new { success = false, message = "Ошибка при создании сеанса" });
-    }
-}
+            
 
-[HttpPut("{id:guid}")]
+            var session = await _sessionService.CreateAsync(dto);
+
+            var seats = await _seatService.GetSeatsByHallIdAsync(dto.HallId);
+
+
+            var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);;
+
+            var isTicketCreated = await _ticketService.CreateTicketAsync(seats, categories, session.Id);
+
+            if (!isTicketCreated)
+            {
+                return BadRequest(new { success = false, message = "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё Р±РёР»РµС‚Р°"});
+            }
+
+            return CreatedAtAction(nameof(GetSessionById), new { id = session.Id }, session);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, message = ex.Message });
+        }
+        catch
+        {
+            return StatusCode(500, new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
+        }
+    }
+
+    [HttpPut("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> UpdateSession(Guid id, [FromBody] SessionUpdate dto)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Недостаточно прав" });
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ" });
 
             var session = await _sessionService.UpdateAsync(id, dto);
-            if (session == null) return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
+            if (session == null) return NotFound(new { success = false, message = $"пїЅпїЅпїЅпїЅпїЅ пїЅ ID {id} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
+
+
+            if (session.HallId != dto.HallId && dto.HallId != null)
+            {
+                Guid hallId = dto.HallId.Value;
+                await _ticketService.DeleteTicketsBySessionAsync(id);
+
+                var seats = await _seatService.GetSeatsByHallIdAsync(hallId);
+
+                var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId); ;
+
+                var isTicketCreated = await _ticketService.CreateTicketAsync(seats, categories, session.Id);
+
+                if (!isTicketCreated)
+                {
+                    return BadRequest(new { success = false, message = "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё Р±РёР»РµС‚Р°" });
+                }
+
+            }
 
             return Ok(new { success = true, data = session });
         }
@@ -111,7 +168,7 @@ public async Task<IActionResult> CreateSession([FromBody] SessionCreate dto)
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "Ошибка при обновлении сеанса" });
+            return StatusCode(500, new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
@@ -122,19 +179,19 @@ public async Task<IActionResult> CreateSession([FromBody] SessionCreate dto)
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Недостаточно прав" });
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ" });
 
             var deleted = await _sessionService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
+            if (!deleted) return NotFound(new { success = false, message = $"пїЅпїЅпїЅпїЅпїЅ пїЅ ID {id} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
 
-            return Ok(new { success = true, message = "Сеанс успешно удалён" });
+            return Ok(new { success = true, message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "Ошибка при удалении сеанса" });
+            return StatusCode(500, new { success = false, message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 }
