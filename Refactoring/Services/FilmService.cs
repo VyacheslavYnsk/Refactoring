@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Model.Film;
 
-
 public class FilmService : IFilmService
 {
     private readonly ApplicationDbContext _context;
@@ -11,9 +10,44 @@ public class FilmService : IFilmService
         _context = context;
     }
 
-    public async Task<IEnumerable<Film>> GetAllAsync()
+    public async Task<PaginationResponse<Film>> GetListAsync(int page, int size)
     {
-        return await _context.Films.ToListAsync();
+        if (page < 0) page = 0;
+        if (size < 1) size = 1;
+        if (size > 100) size = 100;
+
+        var query = _context.Films
+            .OrderBy(f => f.Title)
+            .Select(f => new Film
+            {
+                Id = f.Id,
+                Title = f.Title,
+                Description = f.Description,
+                DurationMinutes = f.DurationMinutes,
+                AgeRating = f.AgeRating,
+                CreatedAt = f.CreatedAt,
+                UpdatedAt = f.UpdatedAt
+            });
+
+        var total = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(total / (double)size);
+
+        var data = await query
+            .Skip(page * size)
+            .Take(size)
+            .ToListAsync();
+
+        return new PaginationResponse<Film>
+        {
+            Data = data,
+            Pagination = new PaginationInfo
+            {
+                Page = page,
+                Limit = size,
+                Total = total,
+                Pages = totalPages
+            }
+        };
     }
 
     public async Task<Film?> GetByIdAsync(Guid id)
@@ -30,8 +64,7 @@ public class FilmService : IFilmService
             Description = dto.Description,
             DurationMinutes = dto.DurationMinutes,
             AgeRating = dto.AgeRating,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         _context.Films.Add(film);
@@ -62,7 +95,6 @@ public class FilmService : IFilmService
         await _context.SaveChangesAsync();
         return film;
     }
-
 
     public async Task<bool> DeleteAsync(Guid id)
     {

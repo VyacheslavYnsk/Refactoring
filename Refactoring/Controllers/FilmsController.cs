@@ -1,24 +1,43 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Model.Film;
 
 namespace Refactoring.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/films")]
     public class FilmsController : ControllerBase
     {
         private readonly IFilmService _filmService;
+        private readonly IUserService _userService;
 
-        public FilmsController(IFilmService filmService)
+        public FilmsController(IFilmService filmService, IUserService userService)
         {
             _filmService = filmService;
+            _userService = userService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllFilms()
+        public async Task<IActionResult> GetList([FromQuery] int page = 0, [FromQuery] int size = 20)
         {
-            var films = await _filmService.GetAllAsync();
-            return Ok(films);
+            try
+            {
+                var result = await _filmService.GetListAsync(page, size);
+                return Ok(new
+                {
+                    data = result.Data,
+                    pagination = result.Pagination
+                });
+            }
+            catch
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Внутренняя ошибка сервера при получении списка фильмов"
+                });
+            }
         }
 
         [HttpGet("{id:guid}")]
@@ -26,36 +45,84 @@ namespace Refactoring.Controllers
         {
             var film = await _filmService.GetByIdAsync(id);
             if (film == null)
-                return NotFound();
+                return NotFound(new { success = false, message = "Фильм не найден" });
 
-            return Ok(film);
+            return Ok(new { data = film });
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateFilm([FromBody] CreateFilm dto)
         {
-            var film = await _filmService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetFilmById), new { id = film.Id }, film);
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
+
+                var role = await _userService.GetRoleAsync(Guid.Parse(userId));
+                if (role != Role.Admin)
+                    return BadRequest(new { success = false, message = "Только администратор может добавлять фильмы" });
+
+                var film = await _filmService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetFilmById), new { id = film.Id }, film);
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Ошибка при создании фильма" });
+            }
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> UpdateFilm(Guid id, [FromBody] FilmUpdate dto)
         {
-            var film = await _filmService.UpdateAsync(id, dto);
-            if (film == null)
-                return NotFound();
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
 
-            return Ok(film);
+                var role = await _userService.GetRoleAsync(Guid.Parse(userId));
+                if (role != Role.Admin)
+                    return BadRequest(new { success = false, message = "Только администратор может изменять фильмы" });
+
+                var film = await _filmService.UpdateAsync(id, dto);
+                if (film == null)
+                    return NotFound(new { success = false, message = "Фильм не найден" });
+
+                return Ok(new { data = film });
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Ошибка при обновлении фильма" });
+            }
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> DeleteFilm(Guid id)
         {
-            var deleted = await _filmService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "Неверный токен" });
 
-            return NoContent();
+                var role = await _userService.GetRoleAsync(Guid.Parse(userId));
+                if (role != Role.Admin)
+                    return BadRequest(new { success = false, message = "Только администратор может удалять фильмы" });
+
+                var deleted = await _filmService.DeleteAsync(id);
+                if (!deleted)
+                    return NotFound(new { success = false, message = "Фильм не найден" });
+
+                return Ok(new { message = "Фильм успешно удалён" });
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Ошибка при удалении фильма" });
+            }
         }
     }
 }

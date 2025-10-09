@@ -54,7 +54,7 @@ public class SessionsController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "������ ��� ��������� ������ �������" });
+            return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера при получении списка сеансов" });
         }
     }
 
@@ -66,13 +66,13 @@ public class SessionsController : ControllerBase
             var session = await _sessionService.GetByIdAsync(id);
             if (session == null)
             {
-                return NotFound(new { success = false, message = $"����� � ID {id} �� ������" });
+                return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
             }
             return Ok(session);
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "������ ��� ��������� ������" });
+            return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера при получении данных о сеансе" });
         }
     }
 
@@ -83,10 +83,10 @@ public class SessionsController : ControllerBase
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "�������� �����" });
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "������������ ����" });
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Только администратор может создавать сеансы" });
 
             var hall = _hallService.GetByIdAsync(dto.HallId);
             if (hall == null)
@@ -122,7 +122,7 @@ public class SessionsController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "������ ��� �������� ������" });
+            return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера при создании сеанса" });
         }
     }
 
@@ -133,13 +133,13 @@ public class SessionsController : ControllerBase
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "�������� �����" });
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "������������ ����" });
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Только администратор может редактировать сеансы" });
 
             var session = await _sessionService.UpdateAsync(id, dto);
-            if (session == null) return NotFound(new { success = false, message = $"����� � ID {id} �� ������" });
+            if (session == null) return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
 
 
             if (session.HallId != dto.HallId && dto.HallId != null)
@@ -168,7 +168,7 @@ public class SessionsController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "������ ��� ���������� ������" });
+            return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера при создании сеанса" });
         }
     }
 
@@ -179,19 +179,19 @@ public class SessionsController : ControllerBase
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "�������� �����" });
+            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "������������ ����" });
+            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Только администратор может удалять сеансы" });
 
             var deleted = await _sessionService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { success = false, message = $"����� � ID {id} �� ������" });
+            if (!deleted) return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
 
-            return Ok(new { success = true, message = "����� ������� �����" });
+            return Ok(new { success = true, message = "Сеанс успешно удалён" });
         }
         catch
         {
-            return StatusCode(500, new { success = false, message = "������ ��� �������� ������" });
+            return StatusCode(500, new { success = false, message = "Внутренняя ошибка сервера при удалении сеанса" });
         }
     }
 }

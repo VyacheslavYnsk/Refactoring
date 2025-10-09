@@ -36,10 +36,6 @@ public class PaymentsController : ControllerBase
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "Неверный токен" });
 
-            var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Client)
-                return BadRequest(new { message = "Платёж может выполнить только клиент" });
-
             var result = await _paymentService.ProcessAsync(Guid.Parse(userId), dto);
             return Ok(result);
         }

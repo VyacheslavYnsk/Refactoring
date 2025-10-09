@@ -58,8 +58,7 @@ public class PurchaseService : IPurchaseService
             TicketIds = dto.TicketIds,
             TotalCents = totalCents,
             Status = PurchaseStatus.PENDING,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         foreach (var ticket in tickets)
@@ -90,7 +89,6 @@ public class PurchaseService : IPurchaseService
             throw new InvalidOperationException("Невозможно отменить оплаченный заказ");
 
         purchase.Status = PurchaseStatus.CANCELLED;
-        purchase.UpdatedAt = DateTime.UtcNow;
 
         var tickets = await _context.Tickets
             .Where(t => purchase.TicketIds.Contains(t.Id))
