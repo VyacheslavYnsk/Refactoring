@@ -19,7 +19,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Session> Sessions { get; set; }
     public DbSet<TicketDto> Tickets { get; set; }
-
+    public DbSet<Purchase> Purchases { get; set; }
+    public DbSet<Payment> Payments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 
