@@ -1,4 +1,4 @@
-ususing Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,14 +29,12 @@ public class PaymentService : IPaymentService
             ClientId = clientId,
             PurchaseId = request.PurchaseId,
             Status = PaymentStatusEnum.SUCCESS,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         _context.Payments.Add(payment);
 
         purchase.Status = PurchaseStatus.PAID;
-        purchase.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
@@ -59,8 +57,7 @@ public class PaymentService : IPaymentService
         {
             PaymentId = payment.Id,
             Status = payment.Status,
-            CreatedAt = payment.CreatedAt,
-            UpdatedAt = payment.UpdatedAt
+            CreatedAt = payment.CreatedAt
         };
     }
 }

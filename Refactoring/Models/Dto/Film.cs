@@ -16,6 +16,5 @@ public class Film : Entity
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [Required]
     public DateTime UpdatedAt { get; set; }
 }
