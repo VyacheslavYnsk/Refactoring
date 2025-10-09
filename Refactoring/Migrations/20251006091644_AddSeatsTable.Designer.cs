@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Refactoring.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251006091644_AddSeatsTable")]
+    partial class AddSeatsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -20,38 +23,6 @@ namespace Refactoring.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Film", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AgeRating")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DurationMinutes")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Films");
-                });
 
             modelBuilder.Entity("HallDto", b =>
                 {
@@ -124,58 +95,6 @@ namespace Refactoring.Migrations
                     b.ToTable("Seats");
                 });
 
-            modelBuilder.Entity("Session", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FilmId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("HallId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("TicketDto", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("BuyerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("PriceCents")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ReservedUntil")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("SeatId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tickets");
-                });
-
             modelBuilder.Entity("UserDto", b =>
                 {
                     b.Property<Guid>("Id")
@@ -216,31 +135,6 @@ namespace Refactoring.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Session", b =>
-                {
-                    b.OwnsOne("Timeslot", "Timeslot", b1 =>
-                        {
-                            b1.Property<Guid>("SessionId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<DateTime>("End")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.Property<DateTime>("Start")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.HasKey("SessionId");
-
-                            b1.ToTable("Sessions");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SessionId");
-                        });
-
-                    b.Navigation("Timeslot")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
