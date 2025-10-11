@@ -75,6 +75,9 @@ builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>()
 builder.Services.AddHttpContextAccessor();
 
 
+var smtpSettings = builder.Configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
+builder.Services.AddSingleton(smtpSettings);
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddControllers()
