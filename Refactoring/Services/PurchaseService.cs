@@ -46,8 +46,10 @@ public class PurchaseService : IPurchaseService
         if (tickets.Count != dto.TicketIds.Count)
             throw new InvalidOperationException("Некоторые билеты не найдены");
 
-        if (tickets.Any(t => t.Status != Status.Available))
-            throw new InvalidOperationException("Один или несколько билетов недоступны для покупки");
+        foreach (var ticket in tickets)
+        {
+            ticket.BuyerId = clientId;
+        }
 
         var totalCents = tickets.Sum(t => t.PriceCents);
 
@@ -60,12 +62,6 @@ public class PurchaseService : IPurchaseService
             Status = PurchaseStatus.PENDING,
             CreatedAt = DateTime.UtcNow
         };
-
-        foreach (var ticket in tickets)
-        {
-            ticket.Status = Status.Sold;
-            ticket.ReservedUntil = null;
-        }
 
         _context.Purchases.Add(purchase);
         await _context.SaveChangesAsync();
