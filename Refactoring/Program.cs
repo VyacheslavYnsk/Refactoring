@@ -69,6 +69,8 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+builder.Services.AddHostedService<TicketExpirationService>();
+
 
 builder.Services.AddSingleton<ITokenRevocationService, TokenRevocationService>();
 

@@ -29,6 +29,7 @@ public class PaymentService : IPaymentService
             .ToListAsync();
 
 
+
         if (purchase.Status != PurchaseStatus.PENDING)
             throw new InvalidOperationException("Покупку можно оплатить только со статусом PENDING");
 
@@ -41,6 +42,13 @@ public class PaymentService : IPaymentService
             CreatedAt = DateTime.UtcNow
         };
 
+        tickets.ForEach(ticket =>
+        {
+            ticket.Status = Status.Sold;
+            ticket.ReservedUntil = null;
+        });
+
+
         _context.Payments.Add(payment);
         purchase.Status = PurchaseStatus.PAID;
 
@@ -52,17 +60,17 @@ public class PaymentService : IPaymentService
 
         var subject = "Подтверждение покупки билетов";
         var body = $@"
-Здравствуйте, {client.FirstName} {client.LastName}!
+        Здравствуйте, {client.FirstName} {client.LastName}!
 
-Ваша покупка билетов успешно подтверждена
+        Ваша покупка билетов успешно подтверждена
 
-Номер покупки: {purchase.Id}
-Сумма: {purchase.TotalCents} рублей
-Количество билетов: {purchase.TicketIds.Count}
+        Номер покупки: {purchase.Id}
+        Сумма: {purchase.TotalCents} рублей
+        Количество билетов: {purchase.TicketIds.Count}
 
-Спасибо, что выбрали наш кинотеатр!
-Хорошего просмотра
-";
+        Спасибо, что выбрали наш кинотеатр!
+        Хорошего просмотра
+        ";
 
         await _emailService.SendAsync(client.Email, subject, body);
 

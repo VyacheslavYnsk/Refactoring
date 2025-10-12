@@ -66,7 +66,6 @@ public class TicketService : ITicketService
             {
                 query = query.Where(t => t.Status == status.Value);
             }
-            Console.WriteLine(query.ToList() + "fsdfsdfkdsfdsfdsfds");
             return await query
                 .Select(t => new Ticket
                 {
@@ -104,7 +103,7 @@ public class TicketService : ITicketService
 
             ticket.BuyerId = userId;
             ticket.Status = Status.Reserved;
-            ticket.ReservedUntil = DateTime.UtcNow.AddMinutes(15);
+            ticket.ReservedUntil = DateTime.UtcNow.AddMinutes(20);
 
 
 
