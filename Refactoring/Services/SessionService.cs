@@ -49,8 +49,8 @@ public class SessionService : ISessionService
             StartAt = dto.StartAt,
             Timeslot = new Timeslot
             {
-                Start = dto.StartAt,
-                End = dto.StartAt.AddMinutes(film.DurationMinutes)
+                Start = dto.StartAt.AddMinutes(-20),
+                End = dto.StartAt.AddMinutes(film.DurationMinutes + 20)
             }
         };
 
@@ -91,8 +91,8 @@ public class SessionService : ISessionService
 
             session.Timeslot = new Timeslot
             {
-                Start = session.StartAt,
-                End = session.StartAt.AddMinutes(film.DurationMinutes)
+                Start = session.StartAt.AddMinutes(-20),
+                End = session.StartAt.AddMinutes(film.DurationMinutes + 20)
             };
         }
 
