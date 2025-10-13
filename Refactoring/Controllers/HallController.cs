@@ -279,7 +279,7 @@ namespace Refactoring.Controllers
 
                 var seats = await _seatService.CreateSeatListAsync(hallPlanUpdate.Seats, id, rows);
 
-            
+
                 var hallPlan = new HallPlan
                 {
                     HallId = id,
@@ -287,16 +287,21 @@ namespace Refactoring.Controllers
                     Categories = categories,
                     Rows = rows,
                 };
-                
+
                 return Ok(new { hallPlan });
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { success = false, message = ex.Message });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+
+            }
             catch (ArgumentException ex)
             {
-                return StatusCode(500, new { success = false, message =ex.Message });
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         
         }

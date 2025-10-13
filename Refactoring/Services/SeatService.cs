@@ -32,6 +32,18 @@ public class SeatService : ISeatService
         if (seatCreates == null || !seatCreates.Any())
             throw new ArgumentException("Некорректный запрос");
 
+
+        var duplicateSeats = seatCreates
+            .GroupBy(s => new { s.Row, s.Number })
+            .Where(g => g.Count() > 1)
+            .Select(g => $"Ряд: {g.Key.Row}, Место: {g.Key.Number}")
+            .ToList();
+
+        if (duplicateSeats.Any())
+        {
+            throw new InvalidOperationException($"Обнаружены дублирующиеся места: {string.Join("\n", duplicateSeats)}");
+        }    
+
         var seats = new List<Seat>();
         
         foreach (var seatCreate in seatCreates)
