@@ -29,7 +29,7 @@ public class PurchaseService : IPurchaseService
     {
         var purchase = await _context.Purchases.FindAsync(id);
         if (purchase == null)
-            throw new KeyNotFoundException($"Покупка с ID {id} не найдена");
+            throw new KeyNotFoundException($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ ID {id} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         return purchase;
     }
@@ -37,14 +37,14 @@ public class PurchaseService : IPurchaseService
     public async Task<Purchase> CreateAsync(Guid clientId, PurchaseCreate dto)
     {
         if (dto.TicketIds == null || dto.TicketIds.Count == 0)
-            throw new ArgumentException("Не указаны билеты для покупки");
+            throw new ArgumentException("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         var tickets = await _context.Tickets
             .Where(t => dto.TicketIds.Contains(t.Id))
             .ToListAsync();
 
         if (tickets.Count != dto.TicketIds.Count)
-            throw new InvalidOperationException("Некоторые билеты не найдены");
+            throw new InvalidOperationException("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         foreach (var ticket in tickets)
         {
@@ -73,16 +73,16 @@ public class PurchaseService : IPurchaseService
     {
         var purchase = await _context.Purchases.FindAsync(id);
         if (purchase == null)
-            throw new KeyNotFoundException($"Покупка с ID {id} не найдена");
+            throw new KeyNotFoundException($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ ID {id} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         if (purchase.ClientId != clientId)
-            throw new UnauthorizedAccessException("Покупка принадлежит другому пользователю");
+            throw new UnauthorizedAccessException("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         if (purchase.Status == PurchaseStatus.CANCELLED)
-            throw new InvalidOperationException("Покупка уже отменена");
+            throw new InvalidOperationException("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
         if (purchase.Status == PurchaseStatus.PAID)
-            throw new InvalidOperationException("Невозможно отменить оплаченный заказ");
+            throw new InvalidOperationException("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
 
         purchase.Status = PurchaseStatus.CANCELLED;
 

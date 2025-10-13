@@ -25,7 +25,7 @@ public class PurchasesController : ControllerBase
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Неверный токен" });
+                return Unauthorized(new { message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var clientId = Guid.Parse(userId);
             var (purchases, total) = await _purchaseService.GetByClientAsync(clientId, page, size);
@@ -44,7 +44,7 @@ public class PurchasesController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { message = "Внутренняя ошибка сервера при получении истории покупок" });
+            return StatusCode(500, new { message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
@@ -56,7 +56,7 @@ public class PurchasesController : ControllerBase
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Неверный токен" });
+                return Unauthorized(new { message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var purchase = await _purchaseService.GetByIdAsync(id);
             if (purchase.ClientId.ToString() != userId)
@@ -70,7 +70,7 @@ public class PurchasesController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { message = "Ошибка при получении покупки" });
+            return StatusCode(500, new { message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
@@ -82,7 +82,7 @@ public class PurchasesController : ControllerBase
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Неверный токен" });
+                return Unauthorized(new { message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var clientId = Guid.Parse(userId);
             var purchase = await _purchaseService.CreateAsync(clientId, dto);
@@ -99,7 +99,7 @@ public class PurchasesController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { message = "Ошибка при создании покупки" });
+            return StatusCode(500, new { message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 
@@ -111,7 +111,7 @@ public class PurchasesController : ControllerBase
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Неверный токен" });
+                return Unauthorized(new { message = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" });
 
             var clientId = Guid.Parse(userId);
             var purchase = await _purchaseService.CancelAsync(id, clientId);
@@ -132,7 +132,7 @@ public class PurchasesController : ControllerBase
         }
         catch
         {
-            return StatusCode(500, new { message = "Ошибка при отмене покупки" });
+            return StatusCode(500, new { message = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
     }
 }

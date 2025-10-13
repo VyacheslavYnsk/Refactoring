@@ -88,7 +88,7 @@ public class SessionsController : ControllerBase
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
             if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Только администратор может создавать сеансы" });
 
-            var hall = _hallService.GetByIdAsync(dto.HallId);
+            var hall = await _hallService.GetByIdAsync(dto.HallId);
             if (hall == null)
             {
                 return BadRequest(new { success = false, message = "Зала с таким id не существует" });
