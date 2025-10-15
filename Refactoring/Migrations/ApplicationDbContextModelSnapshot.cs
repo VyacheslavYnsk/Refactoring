@@ -50,7 +50,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Films");
+                    b.ToTable("Films", (string)null);
                 });
 
             modelBuilder.Entity("HallDto", b =>
@@ -77,7 +77,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Halls");
+                    b.ToTable("Halls", (string)null);
                 });
 
             modelBuilder.Entity("SeatCategory", b =>
@@ -95,7 +95,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SeatCategories");
+                    b.ToTable("SeatCategories", (string)null);
                 });
 
             modelBuilder.Entity("SeatDto", b =>
@@ -121,7 +121,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Seats");
+                    b.ToTable("Seats", (string)null);
                 });
 
             modelBuilder.Entity("Session", b =>
@@ -141,7 +141,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("TicketDto", b =>
@@ -173,7 +173,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("UserDto", b =>
@@ -215,7 +215,7 @@ namespace Refactoring.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Session", b =>
@@ -233,7 +233,7 @@ namespace Refactoring.Migrations
 
                             b1.HasKey("SessionId");
 
-                            b1.ToTable("Sessions");
+                            b1.ToTable("Sessions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("SessionId");
