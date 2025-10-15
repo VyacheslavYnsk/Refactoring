@@ -10,4 +10,6 @@ public class SessionCreate
 
     [Required]
     public DateTime StartAt { get; set; }
+
+    public PeriodicSessionConfig? PeriodicConfig { get; set; }
 }

@@ -9,4 +9,6 @@ public class CreateFilm
     public int DurationMinutes { get; set; }
 
     public AgeRating AgeRating { get; set; }
+
+    public Guid? PosterId { get; set; }
 }
