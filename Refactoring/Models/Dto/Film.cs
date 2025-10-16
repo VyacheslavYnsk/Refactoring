@@ -9,6 +9,9 @@ public class Film : Entity
 
     public string Description { get; set; }
 
+    public string? Image { get; set; }
+
+
     [Required]
     public int DurationMinutes { get; set; }
 

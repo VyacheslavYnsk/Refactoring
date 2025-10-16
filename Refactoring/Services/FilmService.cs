@@ -96,8 +96,10 @@ public class FilmService : IFilmService
             Description = dto.Description,
             DurationMinutes = dto.DurationMinutes,
             AgeRating = dto.AgeRating,
+
             PosterId = dto.PosterId,
             CreatedAt = DateTime.UtcNow
+
         };
 
         _context.Films.Add(film);
