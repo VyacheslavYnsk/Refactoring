@@ -23,7 +23,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TicketDto> Tickets { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
     public DbSet<Payment> Payments { get; set; }
-
+    public DbSet<Media> Media { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 

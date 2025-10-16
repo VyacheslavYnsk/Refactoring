@@ -83,34 +83,39 @@ public class SessionsController : ControllerBase
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { success = false, message = "Неверный токен" });
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { success = false, message = "Неверный токен" });
 
             var userRole = await _userService.GetRoleAsync(Guid.Parse(userId));
-            if (userRole != Role.Admin) return BadRequest(new { success = false, message = "Только администратор может создавать сеансы" });
+            if (userRole != Role.Admin)
+                return BadRequest(new { success = false, message = "Только администратор может создавать сеансы" });
 
             var hall = await _hallService.GetByIdAsync(dto.HallId);
             if (hall == null)
-            {
                 return BadRequest(new { success = false, message = "Зала с таким id не существует" });
-            }
 
-            
+            if (dto.StartAt < DateTime.UtcNow)
+                return BadRequest(new { success = false, message = "Нельзя создавать сеанс в прошлом" });
 
-            var session = await _sessionService.CreateAsync(dto);
+            if (dto.PeriodicConfig != null && dto.PeriodicConfig.PeriodGenerationEndsAt < dto.StartAt)
+                return BadRequest(new { success = false, message = "Дата окончания генерации периодических сеансов не может быть раньше начальной даты" });
+
+
+            var sessions = await _sessionService.CreateAsync(dto);
 
             var seats = await _seatService.GetSeatsByHallIdAsync(dto.HallId);
+            var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);
 
-
-            var categories = await _seatCategoryService.GetCategoriesBySeatIdAsync(seats, s => s.CategotyId);;
-
-            var isTicketCreated = await _ticketService.CreateTicketAsync(seats, categories, session.Id);
-
-            if (!isTicketCreated)
+            foreach (var session in sessions)
             {
-                return BadRequest(new { success = false, message = "Ошибка при создании билета"});
+                var isTicketCreated = await _ticketService.CreateTicketAsync(seats, categories, session.Id);
+                if (!isTicketCreated)
+                {
+                    return BadRequest(new { success = false, message = $"Ошибка при создании билетов для сеанса {session.Id}" });
+                }
             }
 
-            return CreatedAtAction(nameof(GetSessionById), new { id = session.Id }, session);
+            return Created("", new { success = true, data = sessions });
         }
         catch (InvalidOperationException ex)
         {
@@ -140,6 +145,10 @@ public class SessionsController : ControllerBase
 
             var session = await _sessionService.UpdateAsync(id, dto);
             if (session == null) return NotFound(new { success = false, message = $"Сеанс с ID {id} не найден" });
+
+            if (dto.StartAt.HasValue && dto.StartAt.Value < DateTime.UtcNow)
+                return BadRequest(new { success = false, message = "Нельзя перемещать сеанс в прошлое" });
+
 
 
             if (session.HallId != dto.HallId && dto.HallId != null)

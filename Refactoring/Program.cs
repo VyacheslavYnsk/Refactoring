@@ -68,7 +68,7 @@ builder.Services.AddScoped<ISeatService, SeatService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-
+builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddHostedService<TicketExpirationService>();
 
 

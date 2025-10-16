@@ -35,29 +35,72 @@ public class SessionService : ISessionService
         return await _context.Sessions.FindAsync(id);
     }
 
-    public async Task<Session> CreateAsync(SessionCreate dto)
+    public async Task<IEnumerable<Session>> CreateAsync(SessionCreate dto)
     {
         var film = await _context.Films.FindAsync(dto.FilmId);
         if (film == null)
             throw new Exception("Фильм не найден");
 
-        var session = new Session
-        {
-            Id = Guid.NewGuid(),
-            FilmId = dto.FilmId,
-            HallId = dto.HallId,
-            StartAt = dto.StartAt,
-            Timeslot = new Timeslot
-            {
-                Start = dto.StartAt.AddMinutes(-20),
-                End = dto.StartAt.AddMinutes(film.DurationMinutes + 20)
-            }
-        };
+        if (dto.StartAt < DateTime.UtcNow)
+            throw new InvalidOperationException("Нельзя создавать сеанс в прошлом");
 
-        _context.Sessions.Add(session);
+        if (dto.PeriodicConfig == null)
+        {
+            var session = new Session
+            {
+                Id = Guid.NewGuid(),
+                FilmId = dto.FilmId,
+                HallId = dto.HallId,
+                StartAt = dto.StartAt,
+                Timeslot = new Timeslot
+                {
+                    Start = dto.StartAt.AddMinutes(-20),
+                    End = dto.StartAt.AddMinutes(film.DurationMinutes + 20)
+                }
+            };
+
+            _context.Sessions.Add(session);
+            await _context.SaveChangesAsync();
+            return new List<Session> { session };
+        }
+
+        if (dto.PeriodicConfig.PeriodGenerationEndsAt < dto.StartAt)
+            throw new InvalidOperationException("Дата окончания генерации периодических сеансов не может быть раньше начальной даты");
+
+        var createdSessions = new List<Session>();
+        var currentDate = dto.StartAt;
+
+        while (currentDate <= dto.PeriodicConfig.PeriodGenerationEndsAt)
+        {
+            var session = new Session
+            {
+                Id = Guid.NewGuid(),
+                FilmId = dto.FilmId,
+                HallId = dto.HallId,
+                StartAt = currentDate,
+                Timeslot = new Timeslot
+                {
+                    Start = currentDate.AddMinutes(-20),
+                    End = currentDate.AddMinutes(film.DurationMinutes + 20)
+                }
+            };
+
+            createdSessions.Add(session);
+
+            currentDate = dto.PeriodicConfig.Period switch
+            {
+                Period.EVERY_DAY => currentDate.AddDays(1),
+                Period.EVERY_WEEK => currentDate.AddDays(7),
+                _ => throw new ArgumentException("Некорректное значение period")
+            };
+        }
+
+        _context.Sessions.AddRange(createdSessions);
         await _context.SaveChangesAsync();
-        return session;
+
+        return createdSessions;
     }
+
 
     public async Task<Session?> UpdateAsync(Guid id, SessionUpdate dto)
     {
@@ -79,6 +122,9 @@ public class SessionService : ISessionService
 
         if (dto.StartAt.HasValue && dto.StartAt.Value != session.StartAt)
         {
+            if (dto.StartAt.Value < DateTime.UtcNow)
+                throw new InvalidOperationException("Нельзя перемещать сеанс в прошлое");
+
             session.StartAt = dto.StartAt.Value;
             recalcTimeslot = true;
         }
@@ -99,6 +145,7 @@ public class SessionService : ISessionService
         await _context.SaveChangesAsync();
         return session;
     }
+
 
 
 
